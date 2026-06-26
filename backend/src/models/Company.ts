@@ -49,7 +49,7 @@ class Company extends Model<Company> {
   recurrence: string;
 
   @Column({
-    type: DataType.JSONB
+    type: DataType.JSON
   })
   schedules: [];
 
