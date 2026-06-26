@@ -1,10 +1,21 @@
-import { QueryInterface, DataTypes, Sequelize } from "sequelize";
+import { QueryInterface } from "sequelize";
 
 module.exports = {
-  up: (queryInterface: QueryInterface) => {
-    return Promise.all([
-      queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'),
-    ]);
+  up: async (queryInterface: QueryInterface) => {
+    const dialect = queryInterface.sequelize.getDialect();
+
+    // uuid-ossp é uma extensão exclusiva do PostgreSQL.
+    // Em MySQL/MariaDB esta migration deve ser ignorada.
+    if (dialect === "postgres") {
+      await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+    }
   },
 
+  down: async (queryInterface: QueryInterface) => {
+    const dialect = queryInterface.sequelize.getDialect();
+
+    if (dialect === "postgres") {
+      await queryInterface.sequelize.query('DROP EXTENSION IF EXISTS "uuid-ossp"');
+    }
+  }
 };
