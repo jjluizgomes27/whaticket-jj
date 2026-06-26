@@ -1,17 +1,20 @@
 import { QueryInterface, DataTypes, Sequelize } from "sequelize";
 
 module.exports = {
-  up: (queryInterface: QueryInterface) => {
-    return Promise.all([
-      queryInterface.addColumn("Tickets", "uuid", {
-        type: DataTypes.UUID,
-        allowNull: true,
-        defaultValue: Sequelize.literal('uuid_generate_v4()')
-      })
-    ]);
+  up: async (queryInterface: QueryInterface) => {
+    const dialect = queryInterface.sequelize.getDialect();
+    const defaultValue = dialect === "postgres"
+      ? Sequelize.literal('uuid_generate_v4()')
+      : Sequelize.literal('(UUID())');
+
+    await queryInterface.addColumn("Tickets", "uuid", {
+      type: DataTypes.UUID,
+      allowNull: true,
+      defaultValue
+    });
   },
 
-  down: (queryInterface: QueryInterface) => {
-    return queryInterface.removeColumn("Tickets", "uuid");
+  down: async (queryInterface: QueryInterface) => {
+    await queryInterface.removeColumn("Tickets", "uuid");
   }
 };
